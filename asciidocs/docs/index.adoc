@@ -1,0 +1,8 @@
+= Granny - Prolog
+Jan Brunner, Ernad Music
+1.0.0, {docdate}: Granny Prolog Projekt
+:icons: font
+:experimental:
+:sectnums:
+:source-highlighter: rouge
+:docinfo: shared
