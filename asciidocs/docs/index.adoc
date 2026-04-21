@@ -1,8 +1,103 @@
-= Granny - Prolog
+= GRANNY — Text Adventure
 Jan Brunner, Ernad Music
-1.0.0, {docdate}: Granny Prolog Projekt
+1.0.0, {docdate}
 :icons: font
 :experimental:
 :sectnums:
-:source-highlighter: rouge
-:docinfo: shared
+:toc: left
+
+### Ein Prolog-basiertes Horror-Text-Adventure
+*Game Design Document • Schulprojekt*
+
+---
+
+== Beschreibung
+
+Granny ist ein Terminal-basiertes Text-Adventure, das in Prolog implementiert wurde. Der Spieler erwacht gefangen in einem alten Haus und muss im Haus verstreute Autoteile finden, sie in die Garage bringen und das Auto zusammenbauen, um zu entkommen.
+
+Das Haus ist nicht leer. Granny wandert zufällig durch die Räume und tötet den Spieler bei Kontakt. Sie kann den Spieler nicht sehen — aber sie kann ihn hören. Jede Aktion des Spielers erzeugt Geräusche, und Geräusche locken Granny an. Der Spieler muss die Balance zwischen Geschwindigkeit und Stille finden, um zu überleben.
+
+Das Spiel ist direkt vom Mobile-Horror-Spiel *Granny* inspiriert und als reines Text-Adventure neu konzipiert, bei dem die gesamte Spannung aus den Entscheidungen des Spielers und den Informationen des Spiels entsteht.
+
+== Nutzung
+
+=== Bewegung
+
+|===
+| Befehl | Effekt | Geräusch
+
+| `go [Richtung]`
+| Bewegt sich 1 Raum in diese Richtung
+| Lautlos
+
+| `run [Richtung]`
+| Bewegt sich 2 Räume in diese Richtung
+| Laut — alarmiert Granny
+|===
+
+Rennen legt mehr Distanz zurück, alarmiert aber immer Granny. Gehen ist sicher, aber langsam. Der Spieler muss basierend auf Grannys Position entscheiden.
+
+=== Interaktion
+
+|===
+| Befehl | Effekt | Geräusch
+
+| `take [Gegenstand]`
+| Nimmt einen Gegenstand in die Hände
+| Lautlos
+
+| `drop [Gegenstand]`
+| Lässt einen getragenen Gegenstand im aktuellen Raum fallen
+| Abhängig vom Gewicht
+
+| `install [Gegenstand]`
+| Installiert ein Autoteil im Auto (nur Garage)
+| Lautlos
+
+| `kick [Objekt]`
+| Durchbricht einen verbarrikadierten Durchgang
+| Sehr laut — alarmiert Granny immer
+
+| `place trap`
+| Stellt eine getragene Bärenfalle auf dem Boden auf
+| Lautlos
+|===
+
+Das Fallenlassen schwerer Gegenstände (Batterie, Reifen) verursacht einen lauten Knall. Das Fallenlassen leichter Gegenstände (Schlüssel) ist lautlos. Fallen gelassene Gegenstände bleiben im Raum und können später wieder aufgehoben werden.
+
+=== Verstecken
+
+|===
+| Befehl | Effekt
+
+| `hide`
+| Verborgen im Versteck des Raums (falls vorhanden)
+
+| `unhide`
+| Aus dem Versteck kommen — der Spieler wählt den Zeitpunkt
+|===
+
+Der Spieler kann sich nicht verstecken, während er einen zweihändigen Gegenstand trägt. Während des Versteckens zieht Granny durch den Raum, ohne ein Game Over auszulösen. Das Spiel zeigt Meldungen über Grannys Nähe an, damit der Spieler beurteilen kann, wann es sicher ist, wieder hervorzukommen.
+
+=== Das Geräusch-System
+
+Geräusche sind das Bindeglied zwischen dem Spieler und Granny. Laute Aktionen bewirken, dass sich Granny in ihrem nächsten Zug zur Quelle bewegt, anstatt zufällig umherzuwandern. Der Spieler erhält in jedem Zug eine passive Warnung basierend auf der Entfernung zu Granny:
+
+* **3+ Räume entfernt** — Stille
+* **2 Räume entfernt** — *"Du hörst ein entferntes Schlurfen..."*
+* **1 Raum entfernt** — *"Die Dielen knarren direkt neben dir."*
+* **Im selben Raum, nicht versteckt** — Game Over
+
+=== Das Hand-System
+
+Der Spieler hat zwei Hände. Gegenstände belegen eine oder beide Hände. Das Tragen eines zweihändigen Gegenstands (Batterie oder Reifen) blockiert das Verstecken und das Treten (kick). Wenn beide Hände voll sind, kann nichts Neues aufgehoben werden. Dies zwingt den Spieler, jeden Weg durch das Haus sorgfältig zu planen — besonders für die schwereren Autoteile.
+
+=== Bärenfallen
+
+Bärenfallen können aufgehoben, getragen und in jedem Raum platziert werden. Wenn Granny in einen Raum mit einer Falle läuft, ist sie für mehrere Züge betäubt. Fallen können nach dem Auslösen wieder aufgehoben und wiederverwendet werden. Es ist möglich, in die eigene Falle zu laufen — was laut ist.
+
+== Rahmenbedingungen
+
+=== Implementierung
+
+Das Spiel wird mit **Prolog** implementiert. Dabei wird dessen logikbasierte Natur genutzt, um Raumverbindungen, Gegenstandszustände und die Bewegungslogik des NPCs (Granny) zu verwalten. Das Terminal-Interface sorgt für eine fokussierte Atmosphäre, in der die Fantasie das Horror-Erlebnis antreibt.
