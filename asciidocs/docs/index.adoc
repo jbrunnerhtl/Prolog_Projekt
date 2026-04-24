@@ -13,7 +13,7 @@ Jan Brunner, Ernad Music
 
 == Beschreibung
 
-Granny ist ein Terminal-basiertes Text-Adventure, das in Prolog implementiert wurde. Der Spieler erwacht gefangen in einem alten Haus und muss im Haus verstreute Autoteile finden, sie in die Garage bringen und das Auto zusammenbauen, um zu entkommen.
+Granny ist ein Terminal-basiertes Text-Adventure, das in Prolog implementiert wurde. Der Spieler erwacht gefangen in einem alten Haus und muss einen Weg in die Freiheit finden. Es gibt zwei primäre Fluchtwege: Entweder müssen im Haus verstreute Autoteile gefunden, in die Garage gebracht und das Auto zusammengebaut werden, oder der Spieler muss die verbarrikadierte und mehrfach verschlossene Haustür überwinden.
 
 Das Haus ist nicht leer. Granny wandert zufällig durch die Räume und tötet den Spieler bei Kontakt. Sie kann den Spieler nicht sehen — aber sie kann ihn hören. Jede Aktion des Spielers erzeugt Geräusche, und Geräusche locken Granny an. Der Spieler muss die Balance zwischen Geschwindigkeit und Stille finden, um zu überleben.
 
@@ -30,8 +30,8 @@ Das Spiel ist direkt vom Mobile-Horror-Spiel *Granny* inspiriert und als reines 
 | Bewegt sich 1 Raum in diese Richtung
 | Lautlos
 
-| `run [Richtung]`
-| Bewegt sich 2 Räume in diese Richtung
+| `run [Richtung] [Richtung]`
+| Bewegt sich nacheinander durch 2 Räume
 | Laut — alarmiert Granny
 |===
 
@@ -41,6 +41,10 @@ Rennen legt mehr Distanz zurück, alarmiert aber immer Granny. Gehen ist sicher,
 
 |===
 | Befehl | Effekt | Geräusch
+
+| `inspect [Gegenstand]`
+| Durchsucht Möbel (Schubladen, Schränke) nach Gegenständen
+| Lautlos
 
 | `take [Gegenstand]`
 | Nimmt einen Gegenstand in die Hände
