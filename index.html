@@ -442,7 +442,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="details">
 <span id="author" class="author">Jan Brunner, Ernad Music</span><br>
 <span id="revnumber">version 1.0.0,</span>
-<span id="revdate">2026-04-21</span>
+<span id="revdate">2026-04-24</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -479,7 +479,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="_beschreibung"><a class="anchor" href="#_beschreibung"></a>2. Beschreibung</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Granny ist ein Terminal-basiertes Text-Adventure, das in Prolog implementiert wurde. Der Spieler erwacht gefangen in einem alten Haus und muss im Haus verstreute Autoteile finden, sie in die Garage bringen und das Auto zusammenbauen, um zu entkommen.</p>
+<p>Granny ist ein Terminal-basiertes Text-Adventure, das in Prolog implementiert wurde. Der Spieler erwacht gefangen in einem alten Haus und muss einen Weg in die Freiheit finden. Es gibt zwei primäre Fluchtwege: Entweder müssen im Haus verstreute Autoteile gefunden, in die Garage gebracht und das Auto zusammengebaut werden, oder der Spieler muss die verbarrikadierte und mehrfach verschlossene Haustür überwinden.</p>
 </div>
 <div class="paragraph">
 <p>Das Haus ist nicht leer. Granny wandert zufällig durch die Räume und tötet den Spieler bei Kontakt. Sie kann den Spieler nicht sehen — aber sie kann ihn hören. Jede Aktion des Spielers erzeugt Geräusche, und Geräusche locken Granny an. Der Spieler muss die Balance zwischen Geschwindigkeit und Stille finden, um zu überleben.</p>
@@ -514,8 +514,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <td class="tableblock halign-left valign-top"><p class="tableblock">Lautlos</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>run [Richtung]</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Bewegt sich 2 Räume in diese Richtung</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>run [Richtung] [Richtung]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bewegt sich nacheinander durch 2 Räume</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Laut — alarmiert Granny</p></td>
 </tr>
 </tbody>
@@ -540,6 +540,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </tr>
 </thead>
 <tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>inspect [Gegenstand]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Durchsucht Möbel (Schubladen, Schränke) nach Gegenständen</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Lautlos</p></td>
+</tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>take [Gegenstand]</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Nimmt einen Gegenstand in die Hände</p></td>
@@ -650,7 +655,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="footer">
 <div id="footer-text">
 Version 1.0.0<br>
-Last updated 2026-04-21 10:28:33 UTC
+Last updated 2026-04-24 05:52:46 UTC
 </div>
 </div>
 </body>
