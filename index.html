@@ -442,7 +442,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="details">
 <span id="author" class="author">Jan Brunner, Ernad Music</span><br>
 <span id="revnumber">version 1.0.0,</span>
-<span id="revdate">2026-04-24</span>
+<span id="revdate">2026-04-26</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -455,8 +455,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_interaktion">3.2. Interaktion</a></li>
 <li><a href="#_verstecken">3.3. Verstecken</a></li>
 <li><a href="#_das_geräusch_system">3.4. Das Geräusch-System</a></li>
-<li><a href="#_das_hand_system">3.5. Das Hand-System</a></li>
-<li><a href="#_bärenfallen">3.6. Bärenfallen</a></li>
+<li><a href="#_bärenfallen">3.5. Bärenfallen</a></li>
+<li><a href="#_gegenstände">3.6. Gegenstände</a></li>
 </ul>
 </li>
 <li><a href="#_rahmenbedingungen">4. Rahmenbedingungen</a>
@@ -485,7 +485,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Das Haus ist nicht leer. Granny wandert zufällig durch die Räume und tötet den Spieler bei Kontakt. Sie kann den Spieler nicht sehen — aber sie kann ihn hören. Jede Aktion des Spielers erzeugt Geräusche, und Geräusche locken Granny an. Der Spieler muss die Balance zwischen Geschwindigkeit und Stille finden, um zu überleben.</p>
 </div>
 <div class="paragraph">
-<p>Das Spiel ist direkt vom Mobile-Horror-Spiel <strong>Granny</strong> inspiriert und als reines Text-Adventure neu konzipiert, bei dem die gesamte Spannung aus den Entscheidungen des Spielers und den Informationen des Spiels entsteht.</p>
+<p>Das Spiel ist direkt vom Mobile-Horror-Spiel <strong>Granny</strong> inspiriert und als reines Text-Adventure neu konzipiert. Der Spieler hat insgesamt <strong>7 Tage (Leben)</strong> Zeit, um aus dem Haus zu entkommen; jeder Tod lässt einen neuen Tag anbrechen. Die gesamte Spannung entsteht aus den Entscheidungen des Spielers und den Informationen des Spiels.</p>
 </div>
 </div>
 </div>
@@ -546,8 +546,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <td class="tableblock halign-left valign-top"><p class="tableblock">Lautlos</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>interact [Gegenstand]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Interagiert mit einem Objekt im Raum (erfordert korrekten Gegenstand in der Hand)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Lautlos</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>take [Gegenstand]</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Nimmt einen Gegenstand in die Hände</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Nimmt einen zuvor durch <code>inspect</code> entdeckten Gegenstand auf</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Lautlos</p></td>
 </tr>
 <tr>
@@ -561,19 +566,19 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <td class="tableblock halign-left valign-top"><p class="tableblock">Lautlos</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>kick [Objekt]</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Durchbricht einen verbarrikadierten Durchgang</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Sehr laut — alarmiert Granny immer</p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>place trap</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Stellt eine getragene Bärenfalle auf dem Boden auf</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Lautlos</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>break_out</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Befreit den Spieler aus einer eigenen Bärenfalle (muss 3x hintereinander ausgeführt werden)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Laut — alarmiert Granny</p></td>
+</tr>
 </tbody>
 </table>
 <div class="paragraph">
-<p>Das Fallenlassen schwerer Gegenstände (Batterie, Reifen) verursacht einen lauten Knall. Das Fallenlassen leichter Gegenstände (Schlüssel) ist lautlos. Fallen gelassene Gegenstände bleiben im Raum und können später wieder aufgehoben werden.</p>
+<p>Gegenstände können nur aufgenommen werden, wenn sie zuvor durch das Durchsuchen (<code>inspect</code>) von Möbeln oder Räumen entdeckt wurden – oder wenn sie bereits zuvor in diesem Raum fallen gelassen wurden. Das Fallenlassen schwerer Gegenstände (Batterie, Reifen) verursacht einen lauten Knall und alarmiert Granny. Das Fallenlassen leichter Gegenstände (Schlüssel) ist lautlos. Der Spieler kann immer nur einen Gegenstand gleichzeitig tragen. Fallen gelassene Gegenstände bleiben im Raum und können später wieder aufgehoben werden.</p>
 </div>
 </div>
 <div class="sect2">
@@ -598,10 +603,14 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>unhide</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Aus dem Versteck kommen — der Spieler wählt den Zeitpunkt</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>wait</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Wartet einen Zug ab (besonders nützlich während des Versteckens)</p></td>
+</tr>
 </tbody>
 </table>
 <div class="paragraph">
-<p>Der Spieler kann sich nicht verstecken, während er einen zweihändigen Gegenstand trägt. Während des Versteckens zieht Granny durch den Raum, ohne ein Game Over auszulösen. Das Spiel zeigt Meldungen über Grannys Nähe an, damit der Spieler beurteilen kann, wann es sicher ist, wieder hervorzukommen.</p>
+<p>Während des Versteckens zieht Granny durch den Raum, ohne ein Game Over auszulösen. Das Spiel zeigt Meldungen über Grannys Nähe an, damit der Spieler beurteilen kann, wann es sicher ist, wieder hervorzukommen.</p>
 </div>
 </div>
 <div class="sect2">
@@ -627,15 +636,81 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect2">
-<h3 id="_das_hand_system"><a class="anchor" href="#_das_hand_system"></a>3.5. Das Hand-System</h3>
+<h3 id="_bärenfallen"><a class="anchor" href="#_bärenfallen"></a>3.5. Bärenfallen</h3>
 <div class="paragraph">
-<p>Der Spieler hat zwei Hände. Gegenstände belegen eine oder beide Hände. Das Tragen eines zweihändigen Gegenstands (Batterie oder Reifen) blockiert das Verstecken und das Treten (kick). Wenn beide Hände voll sind, kann nichts Neues aufgehoben werden. Dies zwingt den Spieler, jeden Weg durch das Haus sorgfältig zu planen — besonders für die schwereren Autoteile.</p>
+<p>Bärenfallen können aufgehoben, getragen und in jedem Raum platziert werden. Wenn Granny in einen Raum mit einer Falle läuft, wird der Spieler benachrichtigt und Granny ist für <strong>3 Züge</strong> festgesetzt. Während dieser Zeit kann sie sich nicht bewegen und den Spieler nicht töten, selbst wenn dieser sich im selben Raum befindet. Fallen können nach dem Auslösen wieder aufgehoben und wiederverwendet werden. Es ist möglich, in die eigene Falle zu laufen — was laut ist und den Spieler festsetzt. Um sich zu befreien, muss der Befehl <code>break_out</code> dreimal in Folge eingegeben werden. Jeder Versuch erzeugt Lärm und alarmiert Granny.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_bärenfallen"><a class="anchor" href="#_bärenfallen"></a>3.6. Bärenfallen</h3>
-<div class="paragraph">
-<p>Bärenfallen können aufgehoben, getragen und in jedem Raum platziert werden. Wenn Granny in einen Raum mit einer Falle läuft, ist sie für mehrere Züge betäubt. Fallen können nach dem Auslösen wieder aufgehoben und wiederverwendet werden. Es ist möglich, in die eigene Falle zu laufen — was laut ist.</p>
+<h3 id="_gegenstände"><a class="anchor" href="#_gegenstände"></a>3.6. Gegenstände</h3>
+<div class="sect3">
+<h4 id="_flucht_durch_die_haustür"><a class="anchor" href="#_flucht_durch_die_haustür"></a>3.6.1. Flucht durch die Haustür</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>code:</strong> Ein Notizzettel mit dem Code für das Zahlenschloss.</p>
+</li>
+<li>
+<p><strong>padlock_key:</strong> Ein Schlüssel für das Vorhängeschloss an der Tür.</p>
+</li>
+<li>
+<p><strong>hammer:</strong> Zum Entfernen der Holzverbarrikadierung der Tür.</p>
+</li>
+<li>
+<p><strong>wire_cutters:</strong> Zum Durchtrennen der Kabel am Smart-Lock der Tür sowie im Sicherungskasten im Keller.</p>
+</li>
+<li>
+<p><strong>master_key:</strong> Der finale Schlüssel, der die Tür öffnet, sobald alle anderen Sicherungen entfernt wurden.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_flucht_mit_dem_auto"><a class="anchor" href="#_flucht_mit_dem_auto"></a>3.6.2. Flucht mit dem Auto</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>car_battery:</strong> Versorgt das Auto mit Strom.</p>
+</li>
+<li>
+<p><strong>motor:</strong> Der Motorblock, der in das Auto eingebaut werden muss.</p>
+</li>
+<li>
+<p><strong>sparkplug:</strong> Die Zündkerze für den Motor.</p>
+</li>
+<li>
+<p><strong>wrench:</strong> Ein Schraubenschlüssel, um den Motor nach dem Einbau festzuziehen.</p>
+</li>
+<li>
+<p><strong>car_key:</strong> Der Zündschlüssel, um das Auto zu starten und zu entkommen, sobald alle Teile installiert sind.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_weitere_nützliche_gegenstände"><a class="anchor" href="#_weitere_nützliche_gegenstände"></a>3.6.3. Weitere nützliche Gegenstände</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>pepper_spray:</strong> Betäubt Granny automatisch für 3 Züge bei Kontakt im selben Raum (besitzt 5 Ladungen).</p>
+</li>
+<li>
+<p><strong>safe_key:</strong> Öffnet den Safe im Keller.</p>
+</li>
+<li>
+<p><strong>special_key:</strong> Öffnet eine verschlossene Tür im 2. Stock.</p>
+</li>
+<li>
+<p><strong>screwdriver:</strong> Zum Öffnen von Lüftungsschächten oder Abdeckungen.</p>
+</li>
+<li>
+<p><strong>bear_trap:</strong> Eine Bärenfalle, die sowohl Granny als auch den Spieler festsetzen kann.</p>
+</li>
+<li>
+<p><strong>well_crank:</strong> Eine Kurbel, um Gegenstände aus dem Brunnen im Garten zu bergen.</p>
+</li>
+</ul>
+</div>
 </div>
 </div>
 </div>
@@ -655,7 +730,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="footer">
 <div id="footer-text">
 Version 1.0.0<br>
-Last updated 2026-04-24 05:52:46 UTC
+Last updated 2026-04-26 17:00:47 UTC
 </div>
 </div>
 </body>
