@@ -11,4 +11,4 @@ Jan Brunner, Ernad Music
 
 https://jbrunnerhtl.github.io/Prolog_Projekt/description.html[Beschreibung]
 
-https://jbrunnerhtl.github.io/Prolog_Projekt/mao.html[Karte]
+https://jbrunnerhtl.github.io/Prolog_Projekt/map.html[Karte]
