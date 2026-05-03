@@ -5,5 +5,7 @@ Jan Brunner, Ernad Music
 :experimental:
 :sectnums:
 :toc: left
+:imagesdir: images
 
-image::images/granny-map.png[]
+
+image::granny-map.png[]
