@@ -1,4 +1,4 @@
-= GRANNY — Text Adventure
+= Übersicht
 Jan Brunner, Ernad Music
 1.0.0, {docdate}
 :icons: font
@@ -6,134 +6,9 @@ Jan Brunner, Ernad Music
 :sectnums:
 :toc: left
 
-### Ein Prolog-basiertes Horror-Text-Adventure
-*Game Design Document • Schulprojekt*
 
----
+== Links
 
-== Beschreibung
+https://jbrunnerhtl.github.io/Prolog_Projekt/description.html[Beschreibung]
 
-Granny ist ein Terminal-basiertes Text-Adventure, das in Prolog implementiert wurde. Der Spieler erwacht gefangen in einem alten Haus und muss einen Weg in die Freiheit finden. Es gibt zwei primäre Fluchtwege: Entweder müssen im Haus verstreute Autoteile gefunden, in die Garage gebracht und das Auto zusammengebaut werden, oder der Spieler muss die verbarrikadierte und mehrfach verschlossene Haustür überwinden.
-
-Das Haus ist nicht leer. Granny wandert zufällig durch die Räume und tötet den Spieler bei Kontakt. Sie kann den Spieler nicht sehen — aber sie kann ihn hören. Jede Aktion des Spielers erzeugt Geräusche, und Geräusche locken Granny an. Der Spieler muss die Balance zwischen Geschwindigkeit und Stille finden, um zu überleben.
-
-Das Spiel ist direkt vom Mobile-Horror-Spiel *Granny* inspiriert und als reines Text-Adventure neu konzipiert. Der Spieler hat insgesamt **7 Tage (Leben)** Zeit, um aus dem Haus zu entkommen; jeder Tod lässt einen neuen Tag anbrechen. Das Haus ist bei jedem Spieldurchlauf anders: Die Gegenstände befinden sich an unterschiedlichen Positionen, sodass jeder Start ein einzigartiges Erlebnis bietet. Die gesamte Spannung entsteht aus den Entscheidungen des Spielers und den Informationen des Spiels.
-
-== Nutzung
-
-Um das Spiel zu beginnen, wird der Befehl `start` verwendet.
-
-=== Bewegung
-
-|===
-| Befehl | Effekt | Geräusch
-
-| `go [Richtung]`
-| Bewegt sich 1 Raum in diese Richtung
-| Lautlos
-
-| `run [Richtung] [Richtung]`
-| Bewegt sich nacheinander durch 2 Räume
-| Laut — alarmiert Granny
-|===
-
-Rennen legt mehr Distanz zurück, alarmiert aber immer Granny. Gehen ist sicher, aber langsam. Der Spieler muss basierend auf Grannys Position entscheiden.
-
-=== Interaktion
-
-|===
-| Befehl | Effekt | Geräusch
-
-| `inspect [Gegenstand]`
-| Durchsucht Möbel (Schubladen, Schränke) nach Gegenständen
-| Lautlos
-
-| `interact [Gegenstand]`
-| Interagiert mit einem Objekt im Raum (erfordert korrekten Gegenstand in der Hand)
-| Lautlos
-
-| `take [Gegenstand]`
-| Nimmt einen zuvor durch `inspect` entdeckten Gegenstand auf
-| Lautlos
-
-| `drop [Gegenstand]`
-| Lässt einen getragenen Gegenstand im aktuellen Raum fallen
-| Abhängig vom Gewicht
-
-| `install [Gegenstand]`
-| Installiert ein Autoteil im Auto (nur Garage)
-| Lautlos
-
-| `place trap`
-| Stellt eine getragene Bärenfalle auf dem Boden auf
-| Lautlos
-
-| `break_out`
-| Befreit den Spieler aus einer eigenen Bärenfalle (muss 3x hintereinander ausgeführt werden)
-| Laut — alarmiert Granny
-|===
-
-Gegenstände können nur aufgenommen werden, wenn sie zuvor durch das Durchsuchen (`inspect`) von Möbeln oder Räumen entdeckt wurden – oder wenn sie bereits zuvor in diesem Raum fallen gelassen wurden. Das Fallenlassen schwerer Gegenstände (Batterie, Reifen) verursacht einen lauten Knall und alarmiert Granny. Das Fallenlassen leichter Gegenstände (Schlüssel) ist lautlos. Der Spieler kann immer nur einen Gegenstand gleichzeitig tragen. Fallen gelassene Gegenstände bleiben im Raum und können später wieder aufgehoben werden.
-
-=== Verstecken
-
-|===
-| Befehl | Effekt
-
-| `hide`
-| Verborgen im Versteck des Raums (falls vorhanden)
-
-| `unhide`
-| Aus dem Versteck kommen — der Spieler wählt den Zeitpunkt
-
-| `wait`
-| Wartet einen Zug ab (besonders nützlich während des Versteckens)
-|===
-
-Während des Versteckens zieht Granny durch den Raum, ohne ein Game Over auszulösen. Das Spiel zeigt Meldungen über Grannys Nähe an, damit der Spieler beurteilen kann, wann es sicher ist, wieder hervorzukommen.
-
-=== Das Geräusch-System
-
-Geräusche sind das Bindeglied zwischen dem Spieler und Granny. Laute Aktionen bewirken, dass sich Granny in ihrem nächsten Zug zur Quelle bewegt, anstatt zufällig umherzuwandern. Der Spieler erhält in jedem Zug eine passive Warnung basierend auf der Entfernung zu Granny:
-
-* **3+ Räume entfernt** — Stille
-* **2 Räume entfernt** — *"Du hörst ein entferntes Schlurfen..."*
-* **1 Raum entfernt** — *"Die Dielen knarren direkt neben dir."*
-* **Im selben Raum, nicht versteckt** — Game Over
-
-=== Bärenfallen
-
-Bärenfallen können aufgehoben, getragen und in jedem Raum platziert werden. Wenn Granny in einen Raum mit einer Falle läuft, wird der Spieler benachrichtigt und Granny ist für **3 Züge** festgesetzt. Während dieser Zeit kann sie sich nicht bewegen und den Spieler nicht töten, selbst wenn dieser sich im selben Raum befindet. Fallen können nach dem Auslösen wieder aufgehoben und wiederverwendet werden. Es ist möglich, in die eigene Falle zu laufen — was laut ist und den Spieler festsetzt. Um sich zu befreien, muss der Befehl `break_out` dreimal in Folge eingegeben werden. Jeder Versuch erzeugt Lärm und alarmiert Granny.
-
-=== Gegenstände
-
-==== Flucht durch die Haustür
-
-* **code:** Ein Notizzettel mit dem Code für das Zahlenschloss.
-* **padlock_key:** Ein Schlüssel für das Vorhängeschloss an der Tür.
-* **hammer:** Zum Entfernen der Holzverbarrikadierung der Tür.
-* **wire_cutters:** Zum Durchtrennen der Kabel am Smart-Lock der Tür sowie im Sicherungskasten im Keller.
-* **master_key:** Der finale Schlüssel, der die Tür öffnet, sobald alle anderen Sicherungen entfernt wurden.
-
-==== Flucht mit dem Auto
-
-* **car_battery:** Versorgt das Auto mit Strom.
-* **motor:** Der Motorblock, der in das Auto eingebaut werden muss.
-* **sparkplug:** Die Zündkerze für den Motor.
-* **wrench:** Ein Schraubenschlüssel, um den Motor nach dem Einbau festzuziehen.
-* **car_key:** Der Zündschlüssel, um das Auto zu starten und zu entkommen, sobald alle Teile installiert sind.
-
-==== Weitere nützliche Gegenstände
-
-* **pepper_spray:** Betäubt Granny automatisch für 3 Züge bei Kontakt im selben Raum (besitzt 5 Ladungen).
-* **safe_key:** Öffnet den Safe im Keller.
-* **special_key:** Öffnet eine verschlossene Tür im 2. Stock.
-* **screwdriver:** Zum Öffnen von Lüftungsschächten oder Abdeckungen.
-* **bear_trap:** Eine Bärenfalle, die sowohl Granny als auch den Spieler festsetzen kann.
-* **well_crank:** Eine Kurbel, um Gegenstände aus dem Brunnen im Garten zu bergen.
-
-== Rahmenbedingungen
-
-=== Implementierung
-
-Das Spiel wird mit **Prolog** implementiert. Dabei wird dessen logikbasierte Natur genutzt, um Raumverbindungen, Gegenstandszustände und die Bewegungslogik des NPCs (Granny) zu verwalten. Das Terminal-Interface sorgt für eine fokussierte Atmosphäre, in der die Fantasie das Horror-Erlebnis antreibt.
+https://jbrunnerhtl.github.io/Prolog_Projekt/mao.html[Karte]
