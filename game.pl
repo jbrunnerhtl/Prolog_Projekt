@@ -4,7 +4,7 @@
    Jan Brunner & Ernad Music.
 
    Two ways out: rebuild the car in the garage, or clear the
-   locks on the front door. You have 7 days (lives). Granny
+   locks on the front door. You have 10 days (lives). Granny
    hears everything. Every playthrough has a different layout.
 
    Consult this file, then type:   start.
@@ -77,7 +77,7 @@
 i_am_at(bedroom_1).
 turn_count(0).
 granny_at(garage).
-days_left(7).
+days_left(10).
 pepper_charges(5).   /* pepper_spray starts with 5 uses */
 
 
@@ -978,7 +978,7 @@ end_victory(Banner) :-
         write('========================================'), nl,
         days_left(D),
         turn_count(T),
-        Used is 7 - D,
+        Used is 10 - D,
         ( Used =:= 0 ->
               write('Flawless run. Not a single day lost.'), nl
         ; Used =:= 1 ->
@@ -1075,7 +1075,7 @@ lose_a_day :-
               write('========================================'), nl,
               write('              GAME OVER'), nl,
               write('========================================'), nl,
-              write('Seven days. Seven chances. All of them wasted.'), nl,
+              write('Ten days. Ten chances. All of them wasted.'), nl,
               write('The house has you now, and it will never let go.'), nl,
               nl,
               write('Re-consult the file to try again, or type  halt.'), nl,
@@ -1132,25 +1132,47 @@ granny_next(G, Next) :-
         granny_target(T), T \== G, !,
         step_toward(G, T, Next),
         ( Next == T -> retractall(granny_target(_)) ; true ).
-/* Otherwise drop any stale target and wander at random. */
+/* Otherwise drop any stale target and wander at random.
+   1-in-3 chance Granny pauses when not chasing a noise -- reduces
+   the "she walked straight upstairs by accident" early deaths. */
 granny_next(G, Next) :-
         retractall(granny_target(_)),
-        random_neighbour(G, Next).
+        ( random_between(1, 3, 1) -> Next = G   /* idle pause */
+        ; random_neighbour(G, Next)
+        ).
+
+/* Rooms above the ground floor -- off-limits to Granny for the
+   first 5 turns so the player has time to orient. */
+upper_floor_room(hallway).
+upper_floor_room(bedroom_1).
+upper_floor_room(bedroom_2).
+upper_floor_room(bedroom_3).
+upper_floor_room(toilet).
+upper_floor_room(room_1).
+upper_floor_room(room_2).
+upper_floor_room(room_3).
+upper_floor_room(fourth_floor).
+
+granny_safe_zone(Room) :-
+        turn_count(T), T =< 5,
+        upper_floor_room(Room).
 
 random_neighbour(G, Next) :-
-        findall(N, path(G, _, N), Ns),
-        ( Ns == [] -> Next = G
-        ; random_member(Next, Ns)
+        findall(N, (path(G, _, N), \+ granny_safe_zone(N)), Ns),
+        ( Ns \== [] -> random_member(Next, Ns)
+        ; findall(N, path(G, _, N), All),   /* fallback if all blocked */
+          ( All == [] -> Next = G ; random_member(Next, All) )
         ).
 
 /* The neighbour of G that lies nearest (by room count) to T. */
 step_toward(G, T, Next) :-
         findall(D-N,
                 ( path(G, _, N),
+                  \+ granny_safe_zone(N),
                   ( distance(N, T, Dn) -> D = Dn ; D = 9999 ) ),
                 Pairs),
-        ( Pairs == [] -> Next = G
-        ; keysort(Pairs, [_-Next | _])
+        ( Pairs \== [] -> keysort(Pairs, [_-Next | _])
+        ; Next = G   /* safe zone blocks all paths -- Granny waits */
         ).
 
 
@@ -1500,7 +1522,7 @@ instructions :-
         write('  halt.                   quit'), nl,
         nl,
         write('RULES'), nl,
-        write('  You have 7 days (lives). Granny catches you -- you lose one.'), nl,
+        write('  You have 10 days (lives). Granny catches you -- you lose one.'), nl,
         write('  You wake back in bed but the house stays as you left it.'), nl,
         write('  Granny cannot see you, but she HEARS you. Loud moves'), nl,
         write('  (run, dropping heavy items, break_out) draw her straight to you.'), nl,
@@ -1533,5 +1555,5 @@ start :-
         write('old wood and something worse. You are in a house you do not'), nl,
         write('recognise, and from somewhere below you hear slow, heavy footsteps.'), nl,
         nl,
-        write('You have 7 days to get out. Type  instructions.  for help.'), nl,
+        write('You have 10 days to get out. Type  instructions.  for help.'), nl,
         look.
