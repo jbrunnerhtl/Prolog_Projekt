@@ -1,16 +1,4 @@
-/* ============================================================
-   GRANNY -- Text Adventure  (complete, Phases 1-10)
-   A Prolog terminal horror text-adventure -- school project by
-   Jan Brunner & Ernad Music.
-
-   Two ways out: rebuild the car in the garage, or clear the
-   locks on the front door. You have 10 days (lives). Granny
-   hears everything. Every playthrough has a different layout.
-
-   Consult this file, then type:   start.
-   ============================================================ */
-
-:- use_module(library(random)).   /* random_member/2 */
+:- use_module(library(random)).
 
 :- dynamic i_am_at/1.
 :- dynamic at/2.
@@ -21,32 +9,17 @@
 :- dynamic game_over/0.
 :- dynamic days_left/1.
 :- dynamic hidden/0.
-/* --- Phase 7: escape-route progress --- */
-:- dynamic escaped/0.        /* set the moment the player gets out (win) */
-:- dynamic installed/1.      /* car parts fitted: motor, wrench, sparkplug, car_battery */
-:- dynamic lock_removed/1.   /* front-door locks defeated: number_lock, padlock, barricade, smart_lock */
-:- dynamic fuse_cut/0.       /* basement fuse box cut -- prerequisite for the smart lock */
-/* --- Phase 9: randomised placement --- */
-:- dynamic dev_seed/1.   /* optional: assert dev_seed(N) before consulting for fixed seed */
-/* --- Phase 8: gadgets --- */
-:- dynamic granny_stunned/1. /* N > 0: Granny is stunned for N more turns (pepper_spray) */
-:- dynamic pepper_charges/1. /* how many sprays remain (starts at 5) */
-:- dynamic trap_at/1.        /* Room: a bear_trap is armed on the floor there */
-:- dynamic granny_trap_frozen/1. /* N > 0: Granny is frozen in trap for N more turns */
-:- dynamic player_trapped/1. /* N > 0: player is stuck in trap for N more turns */
+:- dynamic escaped/0.
+:- dynamic installed/1.
+:- dynamic lock_removed/1.
+:- dynamic fuse_cut/0.
+:- dynamic dev_seed/1.
+:- dynamic granny_stunned/1.
+:- dynamic pepper_charges/1.
+:- dynamic trap_at/1.
+:- dynamic granny_trap_frozen/1.
+:- dynamic player_trapped/1.
 
-/* Clean slate on (re)consult so restarting is predictable.
-   - i_am_at      : current room
-   - at/2         : loose items in rooms + the carried item (in_hand)
-   - hidden_in    : items still concealed inside furniture
-   - turn_count   : how many turns have elapsed
-   - granny_at    : Granny's current room
-   - granny_target: room Granny is investigating (set by noise)
-   - game_over    : set once the final day is lost
-   - days_left    : days (lives) remaining
-   - hidden       : set while the player is tucked into a dresser
-   The starting facts below are reloaded from this file after the
-   wipe, so re-consulting fully resets the game. */
 :- retractall(i_am_at(_)).
 :- retractall(at(_, _)).
 :- retractall(hidden_in(_, _, _)).
@@ -60,81 +33,52 @@
 :- retractall(installed(_)).
 :- retractall(lock_removed(_)).
 :- retractall(fuse_cut).
-/* Phase 8 resets */
 :- retractall(granny_stunned(_)).
 :- retractall(pepper_charges(_)).
 :- retractall(trap_at(_)).
 :- retractall(granny_trap_frozen(_)).
 :- retractall(player_trapped(_)).
 
-
-/* ------------------------------------------------------------
-   STARTING STATE
-   Granny begins deep in the house, four rooms from the player,
-   so the first turns are silent.
-   ------------------------------------------------------------ */
-
 i_am_at(bedroom_1).
 turn_count(0).
 granny_at(garage).
 days_left(10).
-pepper_charges(5).   /* pepper_spray starts with 5 uses */
+pepper_charges(5).
 
 
-/* ============================================================
-   PATHS -- path(From, Direction, To)
-   Directions: n/s/e/w = horizontal, u = up, d = down, window = garden
-   ============================================================ */
-
-/* --- Garage (-2nd Floor) --- */
 path(garage,        u,      basement).
-
-/* --- Basement (-1st Floor) --- */
 path(basement,      d,      garage).
 path(basement,      u,      main_hall).
-
-/* --- Ground Floor --- */
 path(main_hall,     d,      basement).
 path(main_hall,     u,      hallway).
 path(main_hall,     n,      kitchen).
 path(main_hall,     e,      living_room_2).
-
 path(kitchen,       s,      main_hall).
 path(kitchen,       e,      living_room_1).
-
 path(living_room_1, w,      kitchen).
 path(living_room_1, s,      living_room_2).
 path(living_room_1, window, garden).
-
 path(living_room_2, n,      living_room_1).
 path(living_room_2, w,      main_hall).
-
 path(garden,        window, living_room_1).
-
-/* --- 2nd Floor --- */
 path(hallway,       d,      main_hall).
 path(hallway,       n,      bedroom_1).
 path(hallway,       e,      bedroom_2).
 path(hallway,       s,      bedroom_3).
 path(hallway,       w,      toilet).
-
 path(bedroom_1,     s,      hallway).
 path(bedroom_2,     w,      hallway).
 path(bedroom_2,     s,      bedroom_3).
 path(bedroom_3,     n,      bedroom_2).
 path(bedroom_3,     e,      hallway).
 path(toilet,        e,      hallway).
-/* screwdriver opens a vent cover: toilet north wall -> bedroom_1. */
 path(toilet,        n,      bedroom_1) :- at(screwdriver, in_hand), !.
 path(toilet,        n,      _) :-
         write('A vent cover is screwed shut on the north wall.'), nl,
         write('You need a screwdriver to open it.'), nl,
         fail.
-
-/* --- 3rd Floor --- */
 path(room_1,        d,      hallway).
 path(hallway,       u,      room_1).
-/* special_key gates the stairway from room_1 up to fourth_floor. */
 path(room_1,        u,      fourth_floor) :- at(special_key, in_hand), !.
 path(room_1,        u,      _) :-
         write('The door to the upper floor is locked. You need the special_key.'), nl,
@@ -143,89 +87,47 @@ path(room_1,        n,      room_2).
 path(room_1,        e,      room_3).
 path(room_2,        s,      room_1).
 path(room_3,        w,      room_1).
-
-/* --- 4th Floor --- */
 path(fourth_floor,  d,      room_1).
 
 
-/* ============================================================
-   FURNITURE -- furniture(Object, Room)
-   ============================================================ */
-
-/* Garage */
 furniture(car,            garage).
 furniture(cabinet,        garage).
 furniture(desk,           garage).
 furniture(dresser,        garage).
-
-/* Basement */
 furniture(safe,           basement).
 furniture(desk,           basement).
 furniture(electrical_box, basement).
-
-/* Garden */
 furniture(well,           garden).
-
-/* Living Room 1 */
 furniture(table,          living_room_1).
 furniture(cabinet,        living_room_1).
 furniture(sofa,           living_room_1).
 furniture(cupboard,       living_room_1).
-
-/* Living Room 2 */
 furniture(cabinet,        living_room_2).
 furniture(cupboard,       living_room_2).
-
-/* Main Hall */
 furniture(dresser,        main_hall).
 furniture(main_door,      main_hall).
-
-/* Kitchen */
 furniture(table,          kitchen).
 furniture(upper_cabinet,  kitchen).
 furniture(lower_cabinet,  kitchen).
 furniture(cabinet,        kitchen).
 furniture(microwave,      kitchen).
-
-/* Bedroom 1 */
 furniture(bed,            bedroom_1).
 furniture(cupboard,       bedroom_1).
 furniture(dresser,        bedroom_1).
-
-/* Bedroom 2 */
 furniture(bed,            bedroom_2).
 furniture(cupboard,       bedroom_2).
-
-/* Bedroom 3 */
 furniture(cupboard,       bedroom_3).
 furniture(bed,            bedroom_3).
-
-/* Toilet */
 furniture(dresser,        toilet).
 furniture(wc,             toilet).
 furniture(bathtub,        toilet).
-
-/* 3rd Floor - Room 1 */
 furniture(dresser,        room_1).
-
-/* 3rd Floor - Room 2 */
 furniture(cupboard,       room_2).
-
-/* 3rd Floor - Room 3 */
 furniture(cabinet,        room_3).
 furniture(cupboard,       room_3).
-
-/* 4th Floor */
 furniture(cupboard,       fourth_floor).
 furniture(cabinet,        fourth_floor).
 
-
-/* ============================================================
-   ITEMS
-   item(X)  -- X is a recognised game item.
-   heavy(X) -- X makes a loud crash when dropped.
-               (anything not listed here is light / silent)
-   ============================================================ */
 
 item(code).
 item(padlock_key).
@@ -247,46 +149,9 @@ item(well_crank).
 heavy(car_battery).
 heavy(motor).
 
-
-/* ============================================================
-   HIDING SPOTS
-   hideable(FurnitureType) -- furniture you can climb inside to
-   hide from Granny (the hide command arrives in a later phase).
-   Such furniture is NOT searchable, and no items are ever
-   concealed inside it.
-   ============================================================ */
-
 hideable(dresser).
 
 
-/* ============================================================
-   ITEM PLACEMENT -- PHASE 9: RANDOMISED LAYOUT
-   hidden_in(Item, Furniture, Room) facts are generated fresh at
-   each consult by place_items/0 below.  The fixed facts are gone;
-   the dynamic declaration above covers everything.
-
-   VALID SLOT POOL -- furniture that may conceal items:
-     * dressers (hideable) are EXCLUDED -- hiding spots only
-     * locked containers (safe, well, electrical_box) EXCLUDED
-     * interaction-only objects (car, main_door) EXCLUDED
-     * non-container fixtures (wc, sofa, bathtub) EXCLUDED
-   24 distinct (Furniture, Room) pairs remain for 16 items.
-
-   SOLVABILITY GUARANTEE:
-     The only hard placement constraint is that special_key must
-     NOT land in room_2, room_3, or fourth_floor (all unreachable
-     without first holding special_key -- self-locking deadlock).
-     safe_key and well_crank cannot self-lock because safe and
-     well are not in the slot pool at all.
-
-   DEV SEED HOOK:
-     Define  dev_seed(N).  (a plain Prolog fact) before consulting
-     to pin the random seed and get a reproducible layout.  Remove
-     the fact (or re-consult without it) for a live random run.
-   ============================================================ */
-
-/* The 24 valid hiding slots, in a stable order used as the base
-   list before shuffling. */
 valid_slot(cabinet,       garage).
 valid_slot(desk,          garage).
 valid_slot(desk,          basement).
@@ -312,24 +177,16 @@ valid_slot(cupboard,      room_3).
 valid_slot(cupboard,      fourth_floor).
 valid_slot(cabinet,       fourth_floor).
 
-/* Rooms that are inaccessible without special_key already in hand.
-   special_key must never be placed here (deadlock). */
 locked_3rd_room(room_2).
 locked_3rd_room(room_3).
 locked_3rd_room(fourth_floor).
 
-/* Check that a proposed Item->Slot assignment does not violate
-   any solvability constraint. */
 placement_ok(special_key, _Furn, Room) :-
         \+ locked_3rd_room(Room).
 placement_ok(Item, _Furn, _Room) :-
         Item \= special_key.
 
-/* Collect all items, try to assign each to a unique slot from a
-   shuffled pool, retrying the whole shuffle until constraints pass.
-   Assert the winners as hidden_in/3 facts. */
 place_items :-
-        /* optional dev seed for reproducible tests */
         ( dev_seed(N) -> set_random(seed(N)) ; true ),
         findall(I, item(I), Items),
         findall(F-R, valid_slot(F, R), Slots),
@@ -339,20 +196,14 @@ place_items_loop(Items, Slots) :-
         random_permutation(Slots, Shuffled),
         ( try_assign(Items, Shuffled, Pairs) ->
               maplist(assert_hidden, Pairs)
-        ;     place_items_loop(Items, Slots)   /* constraint failed -- reshuffle */
+        ;     place_items_loop(Items, Slots)
         ).
 
-/* Assign each item in Items to the first available slot in the
-   (shuffled) slot list, checking placement_ok for every pair.
-   Slots is consumed as items are assigned; remaining slots are
-   irrelevant and discarded. */
 try_assign([], _, []).
 try_assign([Item | Items], Slots, [Item-(F,R) | Rest]) :-
         select_valid_slot(Item, Slots, F, R, RemainingSlots),
         try_assign(Items, RemainingSlots, Rest).
 
-/* Find the first slot in the list that satisfies placement_ok for
-   this item, removing it from the available pool. */
 select_valid_slot(Item, [F-R | Rest], F, R, Rest) :-
         placement_ok(Item, F, R), !.
 select_valid_slot(Item, [Skip | Rest], F, R, [Skip | Remaining]) :-
@@ -361,16 +212,8 @@ select_valid_slot(Item, [Skip | Rest], F, R, [Skip | Remaining]) :-
 assert_hidden(Item-(F, R)) :-
         assert(hidden_in(Item, F, R)).
 
-/* Run the randomiser immediately at consult time.  The retractall
-   above has already cleared any stale hidden_in facts. */
 :- place_items.
 
-
-/* ============================================================
-   MOVEMENT
-   Single-letter shortcuts delegate to go/1. 'window' is the
-   garden exit.
-   ============================================================ */
 
 n      :- go(n).
 s      :- go(s).
@@ -396,12 +239,9 @@ go(Direction) :-
         look,
         check_player_trap, !,
         end_turn.
-
 go(_) :-
         write('You can''t go that way.'), nl.
 
-/* run(Dir1, Dir2) -- sprint through two rooms in one turn.
-   Covers more ground, but ALWAYS makes noise and draws Granny. */
 run(_, _) :-
         game_over, !, over_msg.
 run(_, _) :-
@@ -425,12 +265,6 @@ run(_, _) :-
         write('You can''t run that way.'), nl.
 
 
-/* ============================================================
-   LOOK LOOP
-   Describe the room, list its furniture, list the exits, and
-   list any loose items lying in the room.
-   ============================================================ */
-
 look :-
         i_am_at(Place),
         nl,
@@ -443,52 +277,38 @@ look :-
         notice_player_trapped,
         nl.
 
-/* Furniture in the room. setof/3 sorts and de-duplicates. */
 notice_furniture(Place) :-
         setof(F, furniture(F, Place), Fs), !,
         write('You can see: '), write_list(Fs), write('.'), nl.
 notice_furniture(_).
 
-/* Available exits, gathered from the path/3 facts. */
 list_exits(Place) :-
         setof(Dir, There^path(Place, Dir, There), Dirs), !,
         write('Exits: '), write_list(Dirs), write('.'), nl.
 list_exits(_) :-
         write('There are no obvious exits.'), nl.
 
-/* Loose items lying in the room (failure-driven loop). */
 notice_objects_at(Place) :-
         at(X, Place),
         write('There is a '), write(X), write(' lying here.'), nl,
         fail.
 notice_objects_at(_).
 
-/* Armed bear trap visible on the floor. */
 notice_trap(Place) :-
         trap_at(Place), !,
         write('A bear trap sits open and armed on the floor -- watch your step.'), nl.
 notice_trap(_).
 
-/* Remind the player they are stuck. */
 notice_player_trapped :-
         player_trapped(N), !,
         format('Your leg is caught in a bear trap. ~w pull(s) left to break free.~n', [N]).
 notice_player_trapped.
 
-/* Print a list of atoms as a comma-separated line. */
 write_list([]).
 write_list([X])      :- !, write(X).
 write_list([X | Xs]) :- write(X), write(', '), write_list(Xs).
 
 
-/* ============================================================
-   ITEM INTERACTION
-   ============================================================ */
-
-/* inspect(Furniture) -- search a piece of furniture in this room.
-   Items concealed inside become loose items in the room.
-   Hideable furniture (dressers) cannot be searched -- it is a
-   hiding spot, not a container. */
 inspect(_) :-
         game_over, !, over_msg.
 inspect(_) :-
@@ -504,7 +324,6 @@ inspect(F) :-
         write('The '), write(F),
         write(' is empty inside -- but big enough to climb into and hide.'), nl,
         end_turn.
-/* Locked containers need their key/tool before they can be searched. */
 inspect(safe) :-
         i_am_at(basement), !,
         ( at(safe_key, in_hand) ->
@@ -517,17 +336,14 @@ inspect(well) :-
               inspect_container(well, garden)
         ;     write('The well bucket is too far down to reach by hand. You need the well_crank.'), nl
         ).
-/* The electrical box is operated, not searched. */
 inspect(electrical_box) :-
         i_am_at(basement), !,
         write('The fuse box is a tangle of cables, not something to rummage through.'), nl,
         write('Use  interact(electrical_box).  with wire_cutters to cut the power.'), nl.
-/* The car is assembled, not searched. */
 inspect(car) :-
         i_am_at(garage), !,
         write('The car''s engine bay is open and waiting. You cannot search it --'), nl,
         write('use  install(Part).  to fit each missing component.'), nl.
-/* The front door is interacted with, not searched. */
 inspect(main_door) :-
         i_am_at(main_hall), !,
         write('The door is sealed with locks and planks. Use  interact(main_door).'), nl,
@@ -545,7 +361,6 @@ inspect(F) :-
 inspect(F) :-
         write('There is no '), write(F), write(' here to search.'), nl.
 
-/* Helper: search a locked container once the key is confirmed held. */
 inspect_container(F, Here) :-
         findall(I, hidden_in(I, F, Here), Items),
         ( Items == [] ->
@@ -563,7 +378,6 @@ reveal_items([I | Is], F, Here) :-
         reveal_items(Is, F, Here).
 
 
-/* take(Item) -- pick up a discovered item. One item at a time. */
 take(_) :-
         game_over, !, over_msg.
 take(_) :-
@@ -592,8 +406,6 @@ take(_) :-
         write('You do not see that here.'), nl.
 
 
-/* drop -- put down the item you are carrying (you can only hold
-   one, so there is nothing to specify). Heavy items are loud. */
 drop :-
         game_over, !, over_msg.
 drop :-
@@ -610,7 +422,7 @@ drop :-
         write('You set down the '), write(X), write('.'), nl,
         ( heavy(X) ->
               write('It hits the floor with a deafening CRASH.'), nl,
-              make_noise   /* the racket draws Granny to this room */
+              make_noise
         ;     true
         ), !,
         end_turn.
@@ -618,7 +430,6 @@ drop :-
         write('You are not holding anything.'), nl.
 
 
-/* inventory -- show what you are carrying. */
 inventory :-
         at(X, in_hand), !,
         write('You are carrying: '), write(X), write('.'), nl,
@@ -631,7 +442,6 @@ inventory :-
 
 i :- inventory.
 
-/* status -- compact game-state summary. FREE action. */
 status :-
         nl,
         write('--- STATUS ---'), nl,
@@ -645,7 +455,6 @@ status :-
               format('Holding   : ~w~n', [Item])
         ;     write('Holding   : nothing'), nl
         ),
-        /* Car progress */
         car_parts_fitted(Fitted),
         car_parts_needed(Needed),
         ( Fitted == [] ->
@@ -654,14 +463,12 @@ status :-
               write('Car       : fully assembled -- need car_key'), nl
         ;     format('Car       : fitted ~w / still need ~w~n', [Fitted, Needed])
         ),
-        /* Door progress */
         findall(L, lock_removed(L), Removed),
         ( Removed == [] ->
               write('Front door: all locks in place'), nl
         ;     format('Front door: cleared ~w~n', [Removed])
         ),
         ( fuse_cut -> write('Fuse box  : power cut') ; write('Fuse box  : still live') ), nl,
-        /* Gadgets */
         ( pepper_charges(C), C > 0 ->
               format('Pepper    : ~w charge(s)~n', [C])
         ;     true
@@ -673,41 +480,6 @@ status :-
         write('--------------'), nl, nl.
 
 
-/* ============================================================
-   PHASE 7 -- ESCAPE ROUTES (the WIN conditions)
-
-   Two independent ways out, both built from silent, turn-
-   consuming work so Granny keeps hunting while you assemble.
-   Get caught mid-task and you lose a day like any other death;
-   world progress (installed parts, removed locks, the cut fuse)
-   survives a death because respawn_world leaves it untouched.
-
-   New commands:
-     interact(Object).  -- use the held item on a room object
-                           (front door, basement fuse box).
-     install(Part).     -- fit a car part in the garage.
-
-   The escaped/0 flag is the victory analogue of game_over/0:
-   set on a win, it makes every turn-consuming command refuse to
-   act (see the  escaped, !, escaped_msg  guards). The winning
-   step itself does NOT call end_turn -- once you are out, Granny
-   gets no further move.
-   ============================================================ */
-
-/* ------------------------------------------------------------
-   ROUTE A -- THE CAR  (furniture  car  in the garage)
-
-   STRICT ORDER, all via  install(Part).  in the garage:
-     1. motor        -- the engine block goes in first
-     2. wrench       -- torque the motor mounts down (needs motor)
-     3. sparkplug    -- fit the plug          (needs motor+wrench)
-     4. car_battery  -- wire in the battery   (needs the above)
-     5. car_key      -- install(car_key) turns the ignition -> WIN
-   Each successful part install CONSUMES the held item (you can
-   only carry one thing, so every part is a separate trip).
-   ------------------------------------------------------------ */
-
-/* Ordered prerequisites for each fitted part. */
 car_needs(motor,       []).
 car_needs(wrench,      [motor]).
 car_needs(sparkplug,   [motor, wrench]).
@@ -728,8 +500,6 @@ install(_) :-
         hidden, !, blocked_hidden.
 install(_) :-
         player_trapped(_), !, blocked_trapped.
-
-/* Final step: turn the ignition. Wins only if fully assembled. */
 install(car_key) :-
         i_am_at(garage), !,
         ( \+ at(car_key, in_hand) ->
@@ -739,7 +509,6 @@ install(car_key) :-
         ; write('You turn the key -- the engine just clicks, dead.'), nl,
           write('The car is still missing parts.'), nl
         ).
-/* A genuine car part, in the garage. */
 install(Part) :-
         i_am_at(garage),
         car_needs(Part, Prereqs), !,
@@ -751,15 +520,12 @@ install(Part) :-
               install_blocked(Part)
         ; do_install(Part)
         ).
-/* Not in the garage at all. */
 install(_) :-
         \+ i_am_at(garage), !,
         write('There is nothing to work on here. The car is in the garage.'), nl.
-/* In the garage, but not something that fits the car. */
 install(X) :-
         format('You cannot fit the ~w into the car.~n', [X]).
 
-/* Success path: consume the held part, mark it fitted, tick a turn. */
 do_install(Part) :-
         retract(at(Part, in_hand)),
         assert(installed(Part)),
@@ -776,7 +542,6 @@ install_msg(sparkplug) :-
 install_msg(car_battery) :-
         write('You drop the battery into its cradle and clamp the terminals.'), nl.
 
-/* Order hints when prerequisites are missing. */
 install_blocked(wrench) :-
         write('There is no motor to tighten yet. Fit the motor first.'), nl.
 install_blocked(sparkplug) :-
@@ -804,23 +569,6 @@ car_parts_needed(Needed) :-
                      \+ installed(P) ), Needed).
 
 
-/* ------------------------------------------------------------
-   ROUTE B -- THE FRONT DOOR  (furniture  main_door  in main_hall)
-
-   STRICT-ORDER lock chain, each via  interact(main_door).  with
-   the right item in hand:
-     1. number_lock  <- code
-     2. padlock      <- padlock_key
-     3. barricade    <- hammer
-     4. smart_lock   <- wire_cutters  (BUT the basement fuse box
-                        must be cut first: interact(electrical_box)
-                        in the basement holding wire_cutters)
-     5. master_key   -- opens the cleared door -> WIN
-   Door/fuse interactions do NOT consume the held key or tool, so
-   the single pair of wire_cutters serves both the fuse box and
-   the smart lock -- the route stays solvable.
-   ------------------------------------------------------------ */
-
 door_order([number_lock, padlock, barricade, smart_lock]).
 
 lock_item(number_lock, code).
@@ -828,7 +576,6 @@ lock_item(padlock,     padlock_key).
 lock_item(barricade,   hammer).
 lock_item(smart_lock,  wire_cutters).
 
-/* The first lock in the chain that is still in place. */
 next_lock(Lock) :-
         door_order(Order),
         first_pending(Order, Lock).
@@ -858,7 +605,6 @@ interact(electrical_box) :- !,
 interact(car) :-
         i_am_at(garage), !,
         write('The car needs its parts fitted. Use  install(Part).  here.'), nl.
-/* Redirect safe/well to the correct command. */
 interact(safe) :-
         i_am_at(basement), !,
         write('You cannot interact with the safe directly. Use  inspect(safe).'), nl,
@@ -867,7 +613,6 @@ interact(well) :-
         i_am_at(garden), !,
         write('You cannot interact with the well directly. Use  inspect(well).'), nl,
         write('with the well_crank to retrieve what is inside.'), nl.
-/* A real piece of furniture here, but nothing to do with it. */
 interact(Obj) :-
         i_am_at(Here),
         furniture(Obj, Here), !,
@@ -875,7 +620,6 @@ interact(Obj) :-
 interact(_) :-
         write('There is nothing like that here to interact with.'), nl.
 
-/* --- The front door --- */
 door_interact :-
         all_locks_removed, !,
         try_master_key.
@@ -933,7 +677,6 @@ try_master_key :-
         write('Every lock is broken and the barricade is down. The door'), nl,
         write('shifts in its frame, but a final deadbolt needs the master_key.'), nl.
 
-/* --- The basement fuse box (gates the smart lock) --- */
 box_interact :-
         fuse_cut, !,
         write('The fuse box is already dead, its wires hanging severed.'), nl.
@@ -947,12 +690,6 @@ box_interact :-
         write('powers down with a dying whine -- the door''s smart lock is dead now.'), nl,
         !, end_turn.
 
-
-/* ------------------------------------------------------------
-   WINNING
-   Both wins set escaped/0 and stop -- no end_turn, so Granny
-   takes no move once the player is out.
-   ------------------------------------------------------------ */
 
 win_car :-
         nl,
@@ -991,24 +728,9 @@ end_victory(Banner) :-
         assert(escaped),
         !.
 
-/* Shown when any turn-consuming command is tried after winning. */
 escaped_msg :-
         write('You are already free. Re-consult the file to play again.'), nl.
 
-
-/* ============================================================
-   TURN SYSTEM
-   end_turn/0 is the single chokepoint every turn-consuming
-   action funnels through. Order matters:
-     1. advance the clock
-     2. check contact BEFORE Granny moves (did you walk into her?)
-     3. let Granny take her step
-     4. check contact AFTER she moves (did she walk into you?)
-     5. report how near she now sounds
-
-   Turn-consuming actions: go, run, inspect, take, drop, wait.
-   Free actions (no turn): look, inventory, instructions, turns.
-   ============================================================ */
 
 end_turn :-
         ( retract(turn_count(N)) -> N1 is N + 1 ; N1 = 1 ),
@@ -1023,8 +745,6 @@ end_turn :-
         ),
         !.
 
-/* The player is caught when sharing Granny's room and NOT hidden.
-   Tucked into a dresser (hidden), Granny passes harmlessly. */
 caught_now :-
         i_am_at(R),
         granny_at(R),
@@ -1082,9 +802,6 @@ lose_a_day :-
               assert(game_over)
         ).
 
-/* New day: back to the mattress, Granny back to the garage with a
-   clear head. Everything else in the house stays exactly as it was.
-   Phase 8: stun/freeze/trap states reset on respawn. */
 respawn_world :-
         retractall(i_am_at(_)),         assert(i_am_at(bedroom_1)),
         retractall(granny_at(_)),        assert(granny_at(garage)),
@@ -1093,15 +810,6 @@ respawn_world :-
         retractall(granny_stunned(_)),
         retractall(granny_trap_frozen(_)).
 
-
-/* ------------------------------------------------------------
-   GRANNY'S MOVEMENT
-   If she is investigating a noise, she steps along the shortest
-   path toward it; otherwise she wanders to a random neighbour.
-
-   PHASE 8: If Granny is stunned (pepper_spray) or frozen in a
-   bear trap, she skips her move and the counter ticks down.
-   ------------------------------------------------------------ */
 
 granny_turn :-
         retract(granny_stunned(N)), N > 0, !,
@@ -1127,22 +835,16 @@ granny_turn :-
         check_granny_trap(Next),
         !.
 
-/* Heading for an investigated noise (and not already there). */
 granny_next(G, Next) :-
         granny_target(T), T \== G, !,
         step_toward(G, T, Next),
         ( Next == T -> retractall(granny_target(_)) ; true ).
-/* Otherwise drop any stale target and wander at random.
-   1-in-3 chance Granny pauses when not chasing a noise -- reduces
-   the "she walked straight upstairs by accident" early deaths. */
 granny_next(G, Next) :-
         retractall(granny_target(_)),
-        ( random_between(1, 3, 1) -> Next = G   /* idle pause */
+        ( random_between(1, 3, 1) -> Next = G
         ; random_neighbour(G, Next)
         ).
 
-/* Rooms above the ground floor -- off-limits to Granny for the
-   first 5 turns so the player has time to orient. */
 upper_floor_room(hallway).
 upper_floor_room(bedroom_1).
 upper_floor_room(bedroom_2).
@@ -1160,11 +862,10 @@ granny_safe_zone(Room) :-
 random_neighbour(G, Next) :-
         findall(N, (path(G, _, N), \+ granny_safe_zone(N)), Ns),
         ( Ns \== [] -> random_member(Next, Ns)
-        ; findall(N, path(G, _, N), All),   /* fallback if all blocked */
+        ; findall(N, path(G, _, N), All),
           ( All == [] -> Next = G ; random_member(Next, All) )
         ).
 
-/* The neighbour of G that lies nearest (by room count) to T. */
 step_toward(G, T, Next) :-
         findall(D-N,
                 ( path(G, _, N),
@@ -1172,16 +873,9 @@ step_toward(G, T, Next) :-
                   ( distance(N, T, Dn) -> D = Dn ; D = 9999 ) ),
                 Pairs),
         ( Pairs \== [] -> keysort(Pairs, [_-Next | _])
-        ; Next = G   /* safe zone blocks all paths -- Granny waits */
+        ; Next = G
         ).
 
-
-/* ------------------------------------------------------------
-   PHASE 8 -- BEAR TRAP
-   check_granny_trap/1: called after Granny steps into a room.
-   If a trap is armed there, she is frozen 3 turns and the trap
-   becomes unarmed (retrievable by the player as  at(bear_trap,Room)).
-   ------------------------------------------------------------ */
 
 check_granny_trap(Room) :-
         trap_at(Room), !,
@@ -1192,13 +886,8 @@ check_granny_trap(Room) :-
         write('She screams and collapses. She cannot move for 3 turns.'), nl,
         retractall(granny_trap_frozen(_)),
         assert(granny_trap_frozen(3)).
-check_granny_trap(_).    /* no trap here -- nothing to do */
+check_granny_trap(_).
 
-
-/* check_player_trap/0: called when the player finishes moving
-   into a new room. If a trap is armed there, the player is caught
-   in it -- which is loud (noise) and immobilises them 3 turns.
-   They must issue  break_out.  three times to escape. */
 check_player_trap :-
         i_am_at(Room),
         trap_at(Room), !,
@@ -1210,23 +899,14 @@ check_player_trap :-
         make_noise,
         retractall(player_trapped(_)),
         assert(player_trapped(3)).
-check_player_trap.    /* no trap -- fine */
+check_player_trap.
 
-
-/* ------------------------------------------------------------
-   NOISE
-   make_noise/0 marks the player's current room as the place
-   Granny will investigate on her next move.
-   ------------------------------------------------------------ */
 
 make_noise :-
         i_am_at(Here),
         retractall(granny_target(_)),
         assert(granny_target(Here)).
 
-/* Passive proximity warning, based on how many rooms Granny is
-   from the player. Same-room contact is handled by caught_now,
-   so here the distance is always 1 or more. */
 noise_report :-
         i_am_at(P),
         granny_at(G),
@@ -1241,20 +921,14 @@ report_distance(1) :- !,
         write('The floorboards creak right beside you.'), nl.
 report_distance(2) :- !,
         write('You hear a distant shuffling somewhere nearby...'), nl.
-report_distance(_).   /* 3 or more rooms away -- silence */
+report_distance(_).
 
-
-/* ------------------------------------------------------------
-   DISTANCE -- shortest number of rooms between two locations,
-   by breadth-first search over the path/3 graph.
-   ------------------------------------------------------------ */
 
 distance(From, To, 0) :-
         From == To, !.
 distance(From, To, Dist) :-
         bfs([From-0], [From], To, Dist).
 
-/* Queue holds Room-Depth pairs; Vis is the set of seen rooms. */
 bfs([R-D | _], _, To, D) :-
         R == To, !.
 bfs([R-D | Rest], Vis, To, Dist) :-
@@ -1270,15 +944,6 @@ succ_rooms([], []).
 succ_rooms([N-_ | T], [N | R]) :-
         succ_rooms(T, R).
 
-
-/* ------------------------------------------------------------
-   HIDING
-   hide   -- climb into a dresser (silent turn). While hidden,
-             Granny cannot catch you, even in the same room.
-   unhide -- climb out (a turn). DANGEROUS: if Granny is in the
-             room when you emerge, she catches you.
-   While hidden, only wait and unhide are allowed.
-   ------------------------------------------------------------ */
 
 hide :-
         game_over, !, over_msg.
@@ -1312,22 +977,14 @@ unhide :-
         write('You ease the dresser open and climb out.'), nl,
         end_turn.
 
-/* Shown when a blocked action is attempted while hidden. */
 blocked_hidden :-
         write('You are tucked inside the dresser. Come out first with  unhide.'), nl.
 
-/* Shown when the player is stuck in a bear trap. */
 blocked_trapped :-
         player_trapped(N),
         format('Your leg is caught in the trap. Use  break_out.  (~w attempt(s) needed) to free yourself.~n', [N]).
 
 
-/* ------------------------------------------------------------
-   PHASE 8 -- place_trap / break_out
-   ------------------------------------------------------------ */
-
-/* place_trap -- arm the carried bear_trap in the current room.
-   Silent turn. Cannot place while hidden or trapped. */
 place_trap :-
         game_over, !, over_msg.
 place_trap :-
@@ -1349,9 +1006,6 @@ place_trap :-
               !, end_turn
         ).
 
-/* break_out -- one escape attempt when the player is stuck in a
-   bear trap. Must be issued 3 times in a row; each attempt is
-   loud (alerts Granny). After 3 successes the player is free. */
 break_out :-
         game_over, !, over_msg.
 break_out :-
@@ -1374,8 +1028,6 @@ break_out :-
         ).
 
 
-/* wait -- deliberately pass a turn. Safe while hidden; risky
-   otherwise (Granny may walk in on you). */
 wait :-
         game_over, !, over_msg.
 wait :-
@@ -1384,31 +1036,23 @@ wait :-
         write('You hold still and listen to the house breathe...'), nl,
         end_turn.
 
-/* turns -- developer/info helper: report the current turn count.
-   This is a FREE action and does not advance the clock. */
 turns :-
         turn_count(N), !,
         write('Turns elapsed: '), write(N), nl.
 turns :-
         write('Turns elapsed: 0'), nl.
 
-/* days -- report how many days (lives) remain. FREE action. */
 days :-
         days_left(D), !,
         ( D =:= 1 -> write('This is your last day.'), nl
         ; format('Days remaining: ~w.~n', [D])
         ).
 days :-
-        write('Days remaining: 7.'), nl.
+        write('Days remaining: 10.'), nl.
 
-/* Shown when the player tries to act after the game is over. */
 over_msg :-
         write('The game is over. Re-consult the file to try again, or type  halt.'), nl.
 
-
-/* ============================================================
-   ROOM DESCRIPTIONS -- one clause per room (16 total).
-   ============================================================ */
 
 describe(bedroom_1) :-
         write('You wake on a stained mattress in a cramped upstairs bedroom.'), nl,
@@ -1477,10 +1121,6 @@ describe(fourth_floor) :-
         write('A low attic under bare rafters. The air is stale and the dark'), nl,
         write('presses in from every corner. The stairs down are your only exit.'), nl.
 
-
-/* ============================================================
-   META COMMANDS
-   ============================================================ */
 
 instructions :-
         nl,
