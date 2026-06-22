@@ -133,13 +133,12 @@ path(toilet,        n,      _) :-
 
 /* --- 3rd Floor --- */
 path(room_1,        d,      hallway).
-/* special_key gates the stairway from hallway up to room_1 (3rd floor). */
-/* Moving up from hallway to room_1 requires special_key in hand.        */
-path(hallway,       u,      room_1) :- at(special_key, in_hand), !.
-path(hallway,       u,      _) :-
+path(hallway,       u,      room_1).
+/* special_key gates the stairway from room_1 up to fourth_floor. */
+path(room_1,        u,      fourth_floor) :- at(special_key, in_hand), !.
+path(room_1,        u,      _) :-
         write('The door to the upper floor is locked. You need the special_key.'), nl,
         fail.
-path(room_1,        u,      fourth_floor).
 path(room_1,        n,      room_2).
 path(room_1,        e,      room_3).
 path(room_2,        s,      room_1).
